@@ -67,9 +67,9 @@ class VesselModel {
     
  	function configureSignalK() {
  	
- 		baseURL = "http://192.168.1.4:3000"; //Application.Properties.getValue("baseurl_prop"); // seatalk.defectradar.com
-        username = "garmin"; //Application.Properties.getValue("username_prop");
-        password = "garmin123"; //Application.Properties.getValue("password_prop");
+ 		baseURL = "http://localhost:3000"; //Application.Properties.getValue("baseurl_prop"); // seatalk.defectradar.com
+        username = "admin"; //Application.Properties.getValue("username_prop");
+        password = "admin"; //Application.Properties.getValue("password_prop");
         
         token = Storage.getValue(tokenKey);
 
@@ -94,7 +94,7 @@ class VesselModel {
 
 		System.println("Start updating data");
 
-		if(token != null) {
+		if(true) { // token != null) {
 		
 			updateVesselDataFromServer();
 			
@@ -137,13 +137,10 @@ class VesselModel {
     	waterTemperature = 0.0d;
     	
     	autopilotState = "---";
-        
     }
     
     function getSpeedOverGroundKnotsString() {
-
     	return Utils.meterPerSecondToKnots(speedOverGround).format("%.1f");
-    	
     }
     
 
@@ -237,7 +234,6 @@ class VesselModel {
    		}
    
    		return stateName;
-   
     }
         
   
@@ -326,6 +322,7 @@ class VesselModel {
        
        invalidateTimer(updateTimer);
 
+// TODO(rfink): User https
        Communications.makeWebRequest(
             baseURL + "/plugins/minimumvesseldatarest/vesseldata",
             {
@@ -333,8 +330,8 @@ class VesselModel {
             {
             	:method => Communications.HTTP_REQUEST_METHOD_GET,
               	:headers => {                                         
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED,
-                    "Authorization" => token
+                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED
+                    // "Authorization" => token
                 },
              	:responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
              
@@ -345,7 +342,6 @@ class VesselModel {
     
 
     function onReceive(responseCode, data) {
- 
  		if(responseCode == -1003) {
  			return;
  		}

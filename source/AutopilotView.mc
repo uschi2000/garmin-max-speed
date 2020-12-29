@@ -12,11 +12,7 @@ class AutopilotView extends WatchUi.View {
 	var rudderHeight = 26;
 	var width;
     var height;
-    
-    
-    
      
-        
     function initialize() {
         View.initialize();
 
