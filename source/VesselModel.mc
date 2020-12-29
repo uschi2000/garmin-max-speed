@@ -121,7 +121,6 @@ class VesselModel {
     }
     
     function resetVesselData() {
-    
     	speedOverGround = 0.0d;		
     	apparentWindSpeed = 0.0d;	
     	trueWindSpeed = 0.0d;		
@@ -142,127 +141,86 @@ class VesselModel {
     function getSpeedOverGroundKnotsString() {
     	return Utils.meterPerSecondToKnots(speedOverGround).format("%.1f");
     }
-    
 
     function getApparentWindSpeedKnotsString() {
-
     	return Utils.meterPerSecondToKnots(apparentWindSpeed).format("%.1f");
     }
     
     function getTrueWindSpeedKnotsString() {
-
     	return Utils.meterPerSecondToKnots(trueWindSpeed).format("%.1f");
-    	
     }
     
     function getDepthBelowTranscuderMeterString() {
-
 		if(depthBelowTranscuder > 500.0d) {
 			return "---";
 		}
-
     	return depthBelowTranscuder.format("%.1f") + "m";
-    	
     }
     
     function getTripTotalString() {
-
     	return Utils.metersToNauticalMiles(tripTotal).format("%.1f") + "nm";
-    	
     }
     
     function getWaterTemperatureString() {
-
     	return Utils.kelvinToCelsius(waterTemperature).format("%.1f") + "°C";
-    	
     }
     
     function getAppearantWindAngleDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(apparentWindAngle).abs();
-		
     	return degrees.format("%.0f") + "°";
-    	
     }
     
     function getCourseOverGroundDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(courseOverGround).abs();
-
     	return degrees.format("%.0f") + "°";
-    	
     }
     
     function getHeadingMagneticDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(headingMagnetic).abs();
-
     	return degrees.format("%.0f") + "°";
-    	
     }
 
     function getTargetHeadingTrueDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(targetHeadingTrue).abs();
-
     	return degrees.format("%.0f") + "°";
-    	
     }
     
     function getTargetHeadingMagneticDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(targetHeadingMagnetic).abs();
-
     	return degrees.format("%.0f") + "°";
-    	
     }
     
     function getTargetHeadingWindAppearantDegreeString() {
-
 		var degrees = Utils.radiansToDegrees(targetHeadingWindAppearant).abs();
-
     	return degrees.format("%.0f") + "°";
-    	
     }
     
     function getNameForActiveState() {
-   
    		var stateName = autopilotState.toUpper();
-   		
-   		if(stateName.equals("ROUTE")) {
+   		if (stateName.equals("ROUTE")) {
    			stateName = "TRACK";
    		}
-   
    		return stateName;
     }
         
   
     function setAutopilotState(state) {
-    	
     	var command = { "action" => "setState", "value" => state };
-		
 		sendAutopilotCommand(command);
     } 
 
 	function changeHeading(change) {
-	
 		var command = { "action" => "changeHeading", "value" => change };
-		
-		//System.println("COMMAND: " + command); 
-		
 		sendAutopilotCommand(command);
-
 	}
 
     function invalidateTimer(timer) {
-    
-    	if(timer == null) {
+    	if (timer == null) {
     		return;
     	}
     
     	timer.stop();
         timer = null;
-    
     }
     
     ////////////////////////////////////////////////////////
@@ -270,7 +228,6 @@ class VesselModel {
     ////////////////////////////////////////////////////////
     
     function loginToSignalKServer() {
-		
 		token = null;
 		Storage.setValue(tokenKey,null);
 
@@ -286,47 +243,30 @@ class VesselModel {
                     "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
                 },
                 :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON 
-             
             },
             method(:onLoginReceive)
         );
-    
     }
     
     function onLoginReceive(responseCode, data) {
-    
-    	if(responseCode == 200) {
-    	
+    	if (responseCode == 200) {
     		token = "JWT " + data["token"];
-    		
     		Storage.setValue(tokenKey,token);
-    		
     		updateVesselDataFromServer();
-    		
     		errorCode = null;
-    		
-    		
-    	}else {
-   
+    	} else {
    			System.println("Login failed: " + responseCode);
-   
     		showNetworkError(responseCode);
-    		
     		startRetryTimer();
-    		
     	}
-
     }
     
     function updateVesselDataFromServer() {
-       
        invalidateTimer(updateTimer);
-
-// TODO(rfink): User https
+	    // TODO(rfink): User https
        Communications.makeWebRequest(
             baseURL + "/plugins/minimumvesseldatarest/vesseldata",
-            {
-            },
+            {},
             {
             	:method => Communications.HTTP_REQUEST_METHOD_GET,
               	:headers => {                                         
@@ -334,12 +274,10 @@ class VesselModel {
                     // "Authorization" => token
                 },
              	:responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-             
             },
             method(:onReceive)
         );
     }
-    
 
     function onReceive(responseCode, data) {
  		if(responseCode == -1003) {
@@ -347,13 +285,10 @@ class VesselModel {
  		}
 
         if (responseCode == 200) {
-
         	try {
-
 				// FLOAT VALUES
-
 				depthBelowTranscuder = setValueIfPresent(data["depthBelowTransducer"]);
-				//trueWindSpeed = setValueIfPresent(data["windSpeedTrue"]);
+				// trueWindSpeed = setValueIfPresent(data["windSpeedTrue"]);
 				apparentWindSpeed = setValueIfPresent(data["windSpeedApparent"]);
 				waterTemperature = setValueIfPresent(data["waterTemperature"]);
 				speedOverGround = setValueIfPresent(data["speedOverGround"]);
@@ -367,69 +302,40 @@ class VesselModel {
 				tripTotal = setValueIfPresent(data["tripTotal"]);
 
 				// STRING VALUES
-				
-				if(data["autopilotState"] != null) {
+				if (data["autopilotState"] != null) {
 					autopilotState = data["autopilotState"];
-				}else {
+				} else {
 					autopilotState = "---";
 				}
-				
-			}
-			catch (ex) {
-			
+			} catch (ex) {
 				ex.printStackTrace();
 				resetVesselData();
-			
 			}
 
 			errorCode = null;
-
 			WatchUi.requestUpdate();
-
         	updateTimer = new Timer.Timer();
         	updateTimer.start(method(:updateVesselDataFromServer), updateInterval, false);
-        
-        	//logState();
-        
-        	
         } else {
-        
         	System.println("Response Code: " + responseCode);
-        
-        	if(responseCode == 401 || responseCode == -400) {
-        	
+        	if (responseCode == 401 || responseCode == -400) {
         		loginToSignalKServer();
-        	
-        	}else {
-        	
-        	
-            resetVesselData();
-
-            showNetworkError(responseCode);
-            
-            startRetryTimer();
-        	
+        	} else {
+            	resetVesselData();
+            	showNetworkError(responseCode);
+            	startRetryTimer();
         	}
-
         }
-        
-        
-        data = null;
 
+        data = null;
     }
     
     function sendAutopilotCommand(command) {
-    	
-    	
-    	
-    	if(isAutopilotRequestPending == true) {
-    		
+    	if (isAutopilotRequestPending == true) {
     		return;
-    	
     	}
     	
     	isAutopilotRequestPending = true;
-    	
 		Communications.makeWebRequest(
             baseURL + "/plugins/raymarineautopilotfork/command",
             command,
@@ -441,76 +347,45 @@ class VesselModel {
                     "Authorization" => token
                 },
                 :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-                
-             
             },
             method(:onAutopilotReceive)
         );
-
-
-    
     }
     
     function onAutopilotReceive(responseCode, data) {
-
-		
     	if(responseCode == 200) {
-    		
     		Attention.playTone(Attention.TONE_KEY);
-    		
-    		
-			}else {
+			} else {
 				if (Attention has :vibrate) {
     			var vibeData =
     				[
        				 new Attention.VibeProfile(50, 100), // On for 200 ms
-       				];
-       				
-
-       				
+       				];	
        			Attention.vibrate(vibeData);
 			}
-			
     	} 
-    	
-    	
     	isAutopilotRequestPending = false;
-    	
-
     }
     
     function setValueIfPresent(value) {
-    
-    	if(value != null) {
-    	
+    	if (value != null) {
     		return value;
-    	
-    	}else {
+    	} else {
     		return 0.0;
     	} 
-    
     }
     
     function showNetworkError(responseCode) {
-    	
     	errorCode = responseCode;     
-                
         WatchUi.requestUpdate();
     }
     
     function startRetryTimer() {
-    
     	System.println("Receivend Networking error. Retry in " + retryInterval / 1000 + " seconds");
-    
     	retryTimer = new Timer.Timer();
         retryTimer.start(method(:startUpdatingData), retryInterval, false);
-    
     }
 
-    ////////////////////////////////////////////////////////
-    ///////////////////// LOGGING //////////////////////////
-    ////////////////////////////////////////////////////////
-    
     function logState() {
     	System.println("SOG: " + speedOverGround + 
         "\nAWS: " + apparentWindSpeed + 
@@ -526,6 +401,4 @@ class VesselModel {
         "\nRudder: " + rudderAngle + 
         "\nAUTOPILOT: " + autopilotState + "\n---------------\n");
     }
-
-
 }

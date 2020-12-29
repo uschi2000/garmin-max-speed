@@ -6,11 +6,14 @@ using Utilities as Utils;
 
 class VesselDataView extends WatchUi.View {
 
+	var vessel;
+	
 	var width;
     var height;
     var blockHeight;
     
-    function initialize() {
+    function initialize(vessel_) {
+    	vessel = vessel_;
         View.initialize();
     }
     
@@ -33,42 +36,29 @@ class VesselDataView extends WatchUi.View {
     
     function drawError(dc) {
     
-    	// DRAW THE GRID
-        
+    	// Grid
         var errorMessage = Utils.errorMessage(vessel.errorCode);
-        
         dc.setPenWidth(2);
-        
         dc.setColor(Graphics.COLOR_DK_RED,Graphics.COLOR_WHITE);
-        
         dc.drawLine(0, blockHeight, width, blockHeight);
         dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
         
-        
-        if(!vessel.credentialsAvailable || vessel.errorCode == 401) {
+        if (!vessel.credentialsAvailable || vessel.errorCode == 401) {
         	errorMessage = "INVALID OR\nMISSING CREDENTIALS";
-        }else {
+        } else {
         	//drawDataText(dc,width/2,10,"ERROR",vessel.errorCode);
         }
         
-        
-        
         dc.setColor(Graphics.COLOR_BLACK,Graphics.COLOR_WHITE);
-        
         dc.drawText(
-      	width/2,                     
-      	height/2,                   
-      	Graphics.FONT_SYSTEM_TINY,     
-      	errorMessage,                   
-      	(Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
-        
-    
+      		width/2,                     
+      		height/2,                   
+      		Graphics.FONT_SYSTEM_TINY,     
+      		errorMessage,                   
+      		(Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
     }
     
-
-    
     function drawValues(dc) {
-    
     	// Grid
         dc.setPenWidth(2);
         dc.setColor(Graphics.COLOR_ORANGE,Graphics.COLOR_WHITE);
@@ -113,18 +103,19 @@ class VesselDataView extends WatchUi.View {
 
 class VesselDataViewDelegate extends WatchUi.BehaviorDelegate {
 
+	var vessel;
 
-	function initialize() {
+	function initialize(vessel_) {
+		vessel = vessel_;
         BehaviorDelegate.initialize();
     }
 
     function onSelect() {
-
 		if(vessel.errorCode != null) {
 			return true;
 		}
 
-        WatchUi.pushView(new AutopilotView(),new AutopilotDelegate(), WatchUi.SLIDE_RIGHT);
+        WatchUi.pushView(new AutopilotView(vessel), new AutopilotDelegate(vessel), WatchUi.SLIDE_RIGHT);
         return true;
     }
 }

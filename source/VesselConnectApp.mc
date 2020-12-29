@@ -1,9 +1,9 @@
 using Toybox.Application;
 using Toybox.System;
 
-var vessel;
-
 class VesselConnectApp extends Application.AppBase {
+
+	var vessel;
 
     function initialize() {
         AppBase.initialize();
@@ -25,6 +25,6 @@ class VesselConnectApp extends Application.AppBase {
 	}
 
     function getInitialView() {
-    	return [ new VesselDataView(), new VesselDataViewDelegate() ];
+    	return [ new VesselDataView(vessel), new VesselDataViewDelegate(vessel) ];
     }
 }
