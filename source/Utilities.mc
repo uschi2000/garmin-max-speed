@@ -2,52 +2,34 @@ using Toybox.Math;
 using Toybox.Graphics;
 
 module Utilities {
-
-
 	const FACTOR_MS_TO_KNOTS = 1.943844d;
 	
 	function meterPerSecondToKnots(metersPerSecond) {
-	
 		var knots = metersPerSecond * FACTOR_MS_TO_KNOTS;
-		
 		return knots;
-	
 	}
 
 	function degreestToRadians(degrees) {
-	
 		var radians = degrees * Math.PI / 180.0d;
-		
 		return radians;
-	
 	}
 	
 	function metersToNauticalMiles(meters) {
-	
 		var nm = meters * 0.00053995680d;
-		
 		return nm;
-	
 	}
 	
 	function radiansToDegrees(radians) {
-		
 		var degrees = radians * 180.0d / Math.PI;
-		
 		return degrees;
-	
 	}
 	
 	function kelvinToCelsius(kelvin) {
-		
 		var celsius = kelvin - 273.15d;
-		
 		return celsius;
-	
 	}
 	
 	function drawWindAngle(dc, angle, width) {
-
 		// for the wind arrow to be displayed correctly we have to 
 		// subtract 90 degrees as 0 is rotated to 3 o clock position 
     	var correctedAngleDegrees = radiansToDegrees(angle) - 90.0d;
@@ -68,10 +50,8 @@ module Utilities {
     	var pointB = [xB,yB];
     	var pointC = [xC,yC];
 		
-		
 		dc.setColor(Graphics.COLOR_ORANGE,Graphics.COLOR_WHITE);
 		dc.fillPolygon([pointA, pointB, pointC]);
-
     }
     
     var errorList = [
@@ -143,20 +123,13 @@ module Utilities {
 
 	function errorMessage(code) {
   		var result = code;
-  		
-  		for( var i = 0; i < errorList.size(); i++ ) {
-  		
+  		for (var i = 0; i < errorList.size(); i++ ) {
     		if( errorList[i][:code] == code) {
-    		
       			result = errorList[i][:msg];
       			break;
-      			
     		}
-    		
   		}
   		return result;
-}
-
-
+	}
 }
 	
