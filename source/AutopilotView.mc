@@ -205,7 +205,7 @@ class AutopilotDelegate extends WatchUi.BehaviorDelegate {
       }
     }
 
-    var menu = new WatchUi.Menu2({ : title = > "SET MODE", : focus = > focus});
+    var menu = new WatchUi.Menu2({ : title => "SET MODE", : focus => focus});
     menu.addItem(standbyItem);
     menu.addItem(autoItem);
     menu.addItem(windItem);
