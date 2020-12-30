@@ -2,59 +2,59 @@ using Toybox.Math;
 using Toybox.Graphics;
 
 module Utilities {
-	const FACTOR_MS_TO_KNOTS = 1.943844d;
-	
-	function meterPerSecondToKnots(metersPerSecond) {
-		var knots = metersPerSecond * FACTOR_MS_TO_KNOTS;
-		return knots;
-	}
+  const FACTOR_MS_TO_KNOTS = 1.943844d;
 
-	function degreestToRadians(degrees) {
-		var radians = degrees * Math.PI / 180.0d;
-		return radians;
-	}
-	
-	function metersToNauticalMiles(meters) {
-		var nm = meters * 0.00053995680d;
-		return nm;
-	}
-	
-	function radiansToDegrees(radians) {
-		var degrees = radians * 180.0d / Math.PI;
-		return degrees;
-	}
-	
-	function kelvinToCelsius(kelvin) {
-		var celsius = kelvin - 273.15d;
-		return celsius;
-	}
-	
-	function drawWindAngle(dc, angle, width) {
-		// for the wind arrow to be displayed correctly we have to 
-		// subtract 90 degrees as 0 is rotated to 3 o clock position 
-    	var correctedAngleDegrees = radiansToDegrees(angle) - 90.0d;
-    	var radians =  degreestToRadians(correctedAngleDegrees);
+  function meterPerSecondToKnots(metersPerSecond) {
+    var knots = metersPerSecond * FACTOR_MS_TO_KNOTS;
+    return knots;
+  }
 
-    	var arrowLength = 20;
-    	
-    	var xA = width/2 + (width/2-arrowLength) * Math.cos(radians);
-		var yA = width/2 + (width/2-arrowLength) * Math.sin(radians);
-		
-		var xB = width/2 + (width/2+5) * Math.cos(radians+0.15d);
-		var yB = width/2 + (width/2+5) * Math.sin(radians+0.15d);
-		
-		var xC = width/2 + (width/2+5) * Math.cos(radians-0.15d);
-		var yC = width/2 + (width/2+5) * Math.sin(radians-0.15d);
-		
-		var pointA = [xA,yA];
-    	var pointB = [xB,yB];
-    	var pointC = [xC,yC];
-		
-		dc.setColor(Graphics.COLOR_ORANGE,Graphics.COLOR_WHITE);
-		dc.fillPolygon([pointA, pointB, pointC]);
-    }
-    
-    var errorList = [
+  function degreestToRadians(degrees) {
+    var radians = degrees * Math.PI / 180.0d;
+    return radians;
+  }
+
+  function metersToNauticalMiles(meters) {
+    var nm = meters * 0.00053995680d;
+    return nm;
+  }
+
+  function radiansToDegrees(radians) {
+    var degrees = radians * 180.0d / Math.PI;
+    return degrees;
+  }
+
+  function kelvinToCelsius(kelvin) {
+    var celsius = kelvin - 273.15d;
+    return celsius;
+  }
+
+  function drawWindAngle(dc, angle, width) {
+    // for the wind arrow to be displayed correctly we have to
+    // subtract 90 degrees as 0 is rotated to 3 o clock position
+    var correctedAngleDegrees = radiansToDegrees(angle) - 90.0d;
+    var radians = degreestToRadians(correctedAngleDegrees);
+
+    var arrowLength = 20;
+
+    var xA = width / 2 + (width / 2 - arrowLength) * Math.cos(radians);
+    var yA = width / 2 + (width / 2 - arrowLength) * Math.sin(radians);
+
+    var xB = width / 2 + (width / 2 + 5) * Math.cos(radians + 0.15d);
+    var yB = width / 2 + (width / 2 + 5) * Math.sin(radians + 0.15d);
+
+    var xC = width / 2 + (width / 2 + 5) * Math.cos(radians - 0.15d);
+    var yC = width / 2 + (width / 2 + 5) * Math.sin(radians - 0.15d);
+
+    var pointA = [ xA, yA ];
+    var pointB = [ xB, yB ];
+    var pointC = [ xC, yC ];
+
+    dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_WHITE);
+    dc.fillPolygon([ pointA, pointB, pointC ]);
+  }
+
+  var errorList = [
   { :msg => "UNKNOWN ERROR", :code => 0 },
   { :msg => "BLE ERROR", :code => -1 },
   { :msg => "BLE HOST\nTIMEOUT", :code => -2 },
@@ -121,15 +121,14 @@ module Utilities {
 { :msg => "Network\nAuthentication Required", :code => 511 }
 ];
 
-	function errorMessage(code) {
-  		var result = code;
-  		for (var i = 0; i < errorList.size(); i++ ) {
-    		if( errorList[i][:code] == code) {
-      			result = errorList[i][:msg];
-      			break;
-    		}
-  		}
-  		return result;
-	}
+  function errorMessage(code) {
+    var result = code;
+    for (var i = 0; i < errorList.size(); i++) {
+      if (errorList[i][:code] == code) {
+        result = errorList[i][:msg];
+        break;
+      }
+    }
+    return result;
+  }
 }
-	
