@@ -4,41 +4,10 @@ using Toybox.Timer;
 using Toybox.Communications;
 using Toybox.Attention;
 
-using Toybox.Application.Storage;
-
 using Utilities as Utils;
 
-enum {
-    AP_STATE_STANDBY = 0,
-    AP_STATE_AUTO = 1,
-    AP_STATE_WIND = 2,
-    AP_STATE_TRACK = 3,
-    AP_STATE_NOT_SUPPORTED = 4,
-}
-
 class VesselModel {
-    const updateInterval = 1000;
-    const retryInterval = 3000;
-
-    const tokenKey = "signalk-token";
-
-   protected
-    var baseURL = null;
-   protected
-    var username = null;
-   protected
-    var password = null;
-   protected
-    var token = null;
-
-   protected
-    var updateTimer;
-   protected
-    var retryTimer;
-
-    // Strings
-   public
-    var speedOverGround;  // meter/second
+    public var speedOverGround;  // meter/second
    public
     var apparentWindSpeed;  // meter/second
    public
@@ -65,76 +34,14 @@ class VesselModel {
    public
     var targetHeadingWindAppearant;  // radians
 
-   public
-    var autopilotState = "---";
+	function initialize() {
+	 	reset();
+	}
 
-   private
-    var isAutopilotRequestPending = false;
-
-    // Failure indication
-   public
-    var credentialsAvailable = false;
-   public
-    var errorCode = null;
-
-    function initialize() { configureSignalK(); }
-
-    function configureSignalK() {
-        baseURL =
-            "http://localhost:3000";  // Application.Properties.getValue("baseurl_prop");
-                                      // // seatalk.defectradar.com
-        username =
-            "admin";  // Application.Properties.getValue("username_prop");
-        password =
-            "admin";  // Application.Properties.getValue("password_prop");
-
-        token = Storage.getValue(tokenKey);
-
-        if (baseURL == null || username == null || password == null) {
-            System.println("Missing credentails");
-            credentialsAvailable = false;
-        } else {
-            credentialsAvailable = true;
-        }
-
-        resetVesselData();
-    }
-
-    function startUpdatingData() {
-        System.println("Start updating data");
-
-        if (true) {  // token != null) {
-            updateVesselDataFromServer();
-        } else {
-            loginToSignalKServer();
-        }
-    }
-
-    function stopUpdatingData() {
-        System.println("Stop updating data");
-
-        Communications.cancelAllRequests();
-        invalidateTimer(updateTimer);
-        invalidateTimer(retryTimer);
-    }
-
-    function resetVesselData() {
-        speedOverGround = 0.0d;
-        apparentWindSpeed = 0.0d;
-        trueWindSpeed = 0.0d;
-        depthBelowTranscuder = 0.0d;
-        apparentWindAngle = 0.0d;
-        courseOverGround = 0.0d;
-        headingMagnetic = 0.0d;
-        rudderAngle = 0.0d;
-        targetHeadingTrue = 0.0d;
-        targetHeadingMagnetic = 0.0d;
-        targetHeadingWindAppearant = 0.0d;
-        tripTotal = 0.0d;
-        waterTemperature = 0.0d;
-
-        autopilotState = "---";
-    }
+	function reset() {
+		speedOverGround = 0.0;
+		// TODO
+	}
 
     function getSpeedOverGroundKnotsString() {
         return Utils.meterPerSecondToKnots(speedOverGround).format("%.1f");
@@ -211,199 +118,17 @@ class VesselModel {
         sendAutopilotCommand(command);
     }
 
-    function invalidateTimer(timer) {
-        if (timer == null) {
-            return;
-        }
-
-        timer.stop();
-        timer = null;
-    }
-
-    ////////////////////////////////////////////////////////
-    ///////////////////// NETWORKING ///////////////////////
-    ////////////////////////////////////////////////////////
-
-    function loginToSignalKServer() {
-        token = null;
-        Storage.setValue(tokenKey, null);
-
-        Communications.makeWebRequest(
-            baseURL + "/signalk/v1/auth/login",
-            {
-            	"username" => username,
-              	"password" => password
-            },
-            {
-              	:method => Communications.HTTP_REQUEST_METHOD_POST,
-                :headers => {                                          
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
-                },
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON 
-            },
-            method(:onLoginReceive)
-        );
-    }
-
-    function onLoginReceive(responseCode, data) {
-        if (responseCode == 200) {
-            token = "JWT " + data["token"];
-            Storage.setValue(tokenKey, token);
-            updateVesselDataFromServer();
-            errorCode = null;
-        } else {
-            System.println("Login failed: " + responseCode);
-            showNetworkError(responseCode);
-            startRetryTimer();
-        }
-    }
-
-    function updateVesselDataFromServer() {
-        invalidateTimer(updateTimer);
-        // TODO(rfink): Use https
-        Communications.makeWebRequest(
-            baseURL + "/plugins/minimumvesseldatarest/vesseldata",
-            {},
-            {
-            	:method => Communications.HTTP_REQUEST_METHOD_GET,
-              	:headers => {                                         
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED
-                    // "Authorization" => token
-                },
-             	:responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-            },
-            method(:onReceive)
-        );
-    }
-
-    function onReceive(responseCode, data) {
-        if (responseCode == -1003) {
-            return;
-        }
-
-        if (responseCode == 200) {
-            try {
-                // FLOAT VALUES
-                depthBelowTranscuder =
-                    setValueIfPresent(data["depthBelowTransducer"]);
-                // trueWindSpeed =
-                // setValueIfPresent(data["windSpeedTrue"]);
-                apparentWindSpeed =
-                    setValueIfPresent(data["windSpeedApparent"]);
-                waterTemperature = setValueIfPresent(data["waterTemperature"]);
-                speedOverGround = setValueIfPresent(data["speedOverGround"]);
-                courseOverGround =
-                    setValueIfPresent(data["courseOverGroundTrue"]);
-                apparentWindAngle =
-                    setValueIfPresent(data["windAngleApparent"]);
-                rudderAngle = setValueIfPresent(data["rudderAngle"]);
-                headingMagnetic = setValueIfPresent(data["headingMagnetic"]);
-                targetHeadingMagnetic =
-                    setValueIfPresent(data["autopilotTargetHeadingMagnetic"]);
-                targetHeadingTrue =
-                    setValueIfPresent(data["autopilotTargetHeadingTrue"]);
-                targetHeadingWindAppearant =
-                    setValueIfPresent(data["autopilotTargetWindAngleApparent"]);
-                tripTotal = setValueIfPresent(data["tripTotal"]);
-
-                // STRING VALUES
-                if (data["autopilotState"] != null) {
-                    autopilotState = data["autopilotState"];
-                } else {
-                    autopilotState = "---";
-                }
-            } catch (ex) {
-                ex.printStackTrace();
-                resetVesselData();
-            }
-
-            errorCode = null;
-            WatchUi.requestUpdate();
-            updateTimer = new Timer.Timer();
-            updateTimer.start(method(
-                                  : updateVesselDataFromServer),
-                              updateInterval, false);
-        } else {
-            System.println("Response Code: " + responseCode);
-            if (responseCode == 401 || responseCode == -400) {
-                loginToSignalKServer();
-            } else {
-                resetVesselData();
-                showNetworkError(responseCode);
-                startRetryTimer();
-            }
-        }
-
-        data = null;
-    }
-
-    function sendAutopilotCommand(command) {
-        if (isAutopilotRequestPending == true) {
-            return;
-        }
-
-        isAutopilotRequestPending = true;
-        Communications.makeWebRequest(
-            baseURL + "/plugins/raymarineautopilotfork/command",
-            command,
-            {
-              	:method => Communications.HTTP_REQUEST_METHOD_POST,
-                :headers => {    
-                	"Accept" => "application/json",                                      
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
-                    "Authorization" => token
-                },
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-            },
-            method(:onAutopilotReceive)
-        );
-    }
-
-    function onAutopilotReceive(responseCode, data) {
-        if (responseCode == 200) {
-            Attention.playTone(Attention.TONE_KEY);
-        } else {
-            if (Attention has : vibrate) {
-                var vibeData = [
-                    new Attention.VibeProfile(50,
-                                              100),  // On for 200 ms
-                ];
-                Attention.vibrate(vibeData);
-            }
-        }
-        isAutopilotRequestPending = false;
-    }
-
-    function setValueIfPresent(value) {
-        if (value != null) {
-            return value;
-        } else {
-            return 0.0;
-        }
-    }
-
-    function showNetworkError(responseCode) {
-        errorCode = responseCode;
-        WatchUi.requestUpdate();
-    }
-
-    function startRetryTimer() {
-        System.println("Receivend Networking error. Retry in " +
-                       retryInterval / 1000 + " seconds");
-        retryTimer = new Timer.Timer();
-        retryTimer.start(method( : startUpdatingData), retryInterval, false);
-    }
-
     function logState() {
         System.println(
-            "SOG: " + speedOverGround + "\nAWS: " + apparentWindSpeed +
-            "\nDBT: " + depthBelowTranscuder + "\nAWA: " + apparentWindAngle +
-            "\nCOG: " + courseOverGround + "\nHDG(m): " + headingMagnetic +
-            "\nWaterTemp: " + getWaterTemperatureString() +
-            "\nTripTotal: " + getTripTotalString() + "\nTARGET_HDG_MAG: " +
-            targetHeadingMagnetic + "\nTARGET_HDG_TRUE: " + targetHeadingTrue +
-            "\nTARGET_AWA: " + targetHeadingWindAppearant +
-            "\nRudder: " + rudderAngle + "\nAUTOPILOT: " + autopilotState +
-            "\n---------------\n");
+            "SOG: " + speedOverGround + "\n");
+//            + "\nAWS: " + apparentWindSpeed +
+//            "\nDBT: " + depthBelowTranscuder + "\nAWA: " + apparentWindAngle +
+//            "\nCOG: " + courseOverGround + "\nHDG(m): " + headingMagnetic +
+//            "\nWaterTemp: " + getWaterTemperatureString() +
+//            "\nTripTotal: " + getTripTotalString() + "\nTARGET_HDG_MAG: " +
+//            targetHeadingMagnetic + "\nTARGET_HDG_TRUE: " + targetHeadingTrue +
+//            "\nTARGET_AWA: " + targetHeadingWindAppearant +
+//            "\nRudder: " + rudderAngle + "\nAUTOPILOT: " + autopilotState +
+//            "\n---------------\n");
     }
 }
