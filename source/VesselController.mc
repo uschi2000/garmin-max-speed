@@ -18,6 +18,7 @@ class VesselController {
     const updateInterval = 1000;
     const retryInterval = 3000;
     var timer;
+    var error = null;
 
     var autopilotState = "---";
     var isAutopilotRequestPending = false;
@@ -36,7 +37,7 @@ class VesselController {
 
     function startUpdatingData() {
         System.println("Start updating data");
-	getVesselData();
+		getVesselData();
     }
 
     function stopUpdatingData() {
@@ -107,13 +108,15 @@ class VesselController {
         WatchUi.requestUpdate();
         timer = new Timer.Timer();
         timer.start(method(:getVesselData), updateInterval, false);
+        error = null;
     }
     
     function getVesselDataOnError(errorCode) {
-                model.reset();
-                WatchUi.requestUpdate();
-                timer = new Timer.Timer();
-            	timer.start(method(:getVesselData), retryInterval, false);
+		model.reset();
+		WatchUi.requestUpdate();
+		timer = new Timer.Timer();
+		timer.start(method(:getVesselData), retryInterval, false);
+		error = "Failed to update vessel data: " + errorCode;
     }
 
     function sendAutopilotCommand(command) {
@@ -155,10 +158,5 @@ class VesselController {
         } else {
             return 0.0;
         }
-    }
-
-    function showNetworkError(responseCode) {
-        errorCode = responseCode;
-        WatchUi.requestUpdate();
     }
 }
