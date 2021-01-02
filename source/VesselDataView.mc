@@ -11,8 +11,8 @@ class VesselDataView extends WatchUi.View {
   var height;
   var blockHeight;
 
-  function initialize(vessel_) {
-    vessel = vessel_;
+  function initialize(controller) {
+    vessel = controller.model;
     View.initialize();
   }
 
@@ -27,20 +27,6 @@ class VesselDataView extends WatchUi.View {
     blockHeight = height / 3;
 
     drawValues(dc);
-  }
-
-  // TODO: move this to status page
-  function drawError(dc) {
-    // Grid
-    var errorMessage = Utils.errorMessage(vessel.errorCode);
-    dc.setPenWidth(2);
-    dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_WHITE);
-    dc.drawLine(0, blockHeight, width, blockHeight);
-    dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
-
-    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-    dc.drawText(width / 2, height / 2, Graphics.FONT_SYSTEM_TINY, errorMessage,
-                (Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
   }
 
   function drawValues(dc) {
@@ -84,20 +70,21 @@ class VesselDataView extends WatchUi.View {
 }
 
 class VesselDataViewDelegate extends WatchUi.BehaviorDelegate {
-  var vessel;
+  var controller;
 
-  function initialize(vessel_) {
-    vessel = vessel_;
+  function initialize(controller_) {
+    controller = controller_;
     BehaviorDelegate.initialize();
   }
 
   function onSelect() {
-    if (vessel.errorCode != null) {
-      return true;
-    }
-
-    WatchUi.pushView(new AutopilotView(vessel), new AutopilotDelegate(vessel),
+    WatchUi.pushView(new AutopilotView(controller), new AutopilotDelegate(controller),
                      WatchUi.SLIDE_RIGHT);
     return true;
+  }
+  
+  function onNextPage() {
+  	WatchUi.switchToView(new StatusView(controller), new StatusViewDelegate(controller), WatchUi.SLIDE_UP);
+  	return true;
   }
 }

@@ -31,6 +31,6 @@ class VesselConnectApp extends Application.AppBase {
   }
 
   function getInitialView() {
-    return [ new VesselDataView(controller.getModel()), new VesselDataViewDelegate(controller) ];
+    return [ new VesselDataView(controller), new VesselDataViewDelegate(controller) ];
   }
 }
