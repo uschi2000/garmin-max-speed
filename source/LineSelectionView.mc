@@ -26,7 +26,9 @@ class LineSelectionView extends WatchUi.View {
   }
 
   function drawValues(dc) {
-
+	// Caity, draw some points: starting boat, pin, boat
+	dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_BLACK);
+	dc.fillCircle(50, 100, 75);
   }
 }
 
@@ -63,6 +65,7 @@ class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
     } else if (item == :two) {
         controllers.line.setPinPosition(currentX, currentY);
     }
+    WatchUi.requestUpdate();
   }
   
   function onPreviousPage() {
