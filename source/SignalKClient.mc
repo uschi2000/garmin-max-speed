@@ -48,8 +48,8 @@ class SignalKClient {
             Storage.setValue(tokenKey, token);
         } else {
             System.println("Login failed: " + responseCode);
-            showNetworkError(responseCode);
-            startRetryTimer();
+//            showNetworkError(responseCode);
+//            startRetryTimer();
         }
     }
 
