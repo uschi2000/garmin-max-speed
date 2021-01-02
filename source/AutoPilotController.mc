@@ -95,7 +95,7 @@ class AutoPilotController {
     function startRetryTimer() {
         System.println("Receivend Networking error. Retry in " +
                        retryInterval / 1000 + " seconds");
-        retryTimer = new Timer.Timer();
-        retryTimer.start(method( : startUpdatingData), retryInterval, false);
+        timer = new Timer.Timer();
+        timer.start(method( : startUpdatingData), retryInterval, false);
     }
 }

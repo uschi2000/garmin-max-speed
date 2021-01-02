@@ -10,6 +10,7 @@ class VesselModel {
     public var speedOverGround;  // meter/second
    	public
     var courseOverGround;  // radians
+    public var magneticVariation; // radians
    public
     var waterTemperature;  // kelvin
    public
@@ -32,6 +33,7 @@ class VesselModel {
 		speedThroughWater = 0;
 	    speedOverGround = 0;
 	   	courseOverGround = 0;
+	   	magneticVariation = 0;
 	    waterTemperature = 0;
 	    windSpeedApparent = 0;
 	    windAngleApparent = 0;
@@ -51,6 +53,11 @@ class VesselModel {
     
     function getCourseOverGround() {
         var degrees = Conversions.radiansToDegrees(courseOverGround).abs();
+        return degrees.format("%.0f") + "°";
+    }
+    
+    function getMagneticVariation() {
+        var degrees = Conversions.radiansToDegrees(magneticVariation).abs();
         return degrees.format("%.0f") + "°";
     }
     

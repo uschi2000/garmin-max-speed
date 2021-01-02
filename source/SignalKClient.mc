@@ -21,7 +21,7 @@ class SignalKClient {
         token = Storage.getValue(tokenKey);
     }
 
-    function loginToSignalKServer() {
+    function login() {
         token = null;
         Storage.setValue(tokenKey, null);
 
@@ -53,12 +53,12 @@ class SignalKClient {
         }
     }
 
-    function updateVesselDataFromServer(dataCallback) {
+    function getVesselData(onSuccess, onError) {
     	if (token == null) {
-    		loginToSignalKServer();
+    		login();
     	}
 
-		var callback = new Callback(dataCallback);
+		var callback = new GetVesselDataCallback(onSuccess, onError);
 		Communications.makeWebRequest(
             baseUrl + "/plugins/minimumvesseldatarest/vesseldata",
             {},
@@ -117,22 +117,25 @@ class SignalKClient {
     }
 }
 
-class Callback {
-  var delegate;
+class GetVesselDataCallback {
+  var onSuccess;
+  var onError;
   
-  function initialize(delegate_) {
-    delegate = delegate_;
+  function initialize(onSuccess_, onError_) {
+    onSuccess = onSuccess_;
+    onError = onError_;
   }
   
   function apply(responseCode, data) {
-  	if (responseCode == -1003) {
-        return;
+  	if (responseCode == 200) {
+        onSuccess.invoke(data);
     } else if (responseCode == 401 || responseCode == -400) {
-        client.loginToSignalKServer();
-    } else if (responseCode == 200) {
-        delegate.invoke(data);
+    	System.println("Not authorized, resetting token");
+    	onError.invoke(responseCode);
+        token = null; 
     } else {
-    	System.println("Unknown error: " + responseCode);
+    	System.println("Unknown networking error: " + responseCode);
+    	onError.invoke(responseCode);
     }
   }
 }

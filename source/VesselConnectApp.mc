@@ -22,6 +22,7 @@ class VesselConnectApp extends Application.AppBase {
   }
 
   function onSettingsChanged() {
+  	System.println("Reloading app configuration");
     client.configure(
     	Properties.getValue("baseurl_prop"),
     	Properties.getValue("username_prop"),

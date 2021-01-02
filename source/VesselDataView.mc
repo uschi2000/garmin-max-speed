@@ -26,13 +26,10 @@ class VesselDataView extends WatchUi.View {
     height = dc.getHeight();
     blockHeight = height / 3;
 
-//    if (vessel.errorCode == null) {
-      drawValues(dc);
-//    } else {
-//      drawError(dc);
-//    }
+    drawValues(dc);
   }
 
+  // TODO: move this to status page
   function drawError(dc) {
     // Grid
     var errorMessage = Utils.errorMessage(vessel.errorCode);
@@ -40,12 +37,6 @@ class VesselDataView extends WatchUi.View {
     dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_WHITE);
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
-
-//    if (!vessel.credentialsAvailable || vessel.errorCode == 401) {
-//      errorMessage = "INVALID OR\nMISSING CREDENTIALS";
-//    } else {
-//      // drawDataText(dc,width/2,10,"ERROR",vessel.errorCode);
-//    }
 
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
     dc.drawText(width / 2, height / 2, Graphics.FONT_SYSTEM_TINY, errorMessage,

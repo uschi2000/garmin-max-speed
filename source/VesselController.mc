@@ -17,9 +17,7 @@ enum {
 class VesselController {
     const updateInterval = 1000;
     const retryInterval = 3000;
-
-    var updateTimer;
-    var retryTimer;
+    var timer;
 
     var autopilotState = "---";
     var isAutopilotRequestPending = false;
@@ -38,15 +36,14 @@ class VesselController {
 
     function startUpdatingData() {
         System.println("Start updating data");
-		updateVesselDataFromServer();
+	getVesselData();
     }
 
     function stopUpdatingData() {
         System.println("Stop updating data");
 
         Communications.cancelAllRequests();
-        invalidateTimer(updateTimer);
-        invalidateTimer(retryTimer);
+        invalidateTimer();
     }
 
     function resetVesselData() {
@@ -72,7 +69,7 @@ class VesselController {
         sendAutopilotCommand(command);
     }
 
-    function invalidateTimer(timer) {
+    function invalidateTimer() {
         if (timer == null) {
             return;
         }
@@ -81,52 +78,42 @@ class VesselController {
         timer = null;
     }
 
-    function updateVesselDataFromServer() {
-        invalidateTimer(updateTimer);
-        client.updateVesselDataFromServer(method(:onReceive));
+    function getVesselData() {
+    	System.println("Updating vessel data");
+        invalidateTimer();
+        client.getVesselData(method(:getVesselDataOnSuccess), method(:getVesselDataOnError));
     }
+    
+    function getVesselDataOnSuccess(data) {
+		model.speedThroughWater = setValueIfPresent(data["speedThroughWater"]);
+		model.speedOverGround = setValueIfPresent(data["speedOverGround"]);
+		model.courseOverGround = setValueIfPresent(data["courseOverGroundTrue"]);
+		model.magneticVariation = setValueIfPresent(data["magneticVariation"]);
+		model.waterTemperature = setValueIfPresent(data["waterTemperature"]);
+		model.windSpeedApparent = setValueIfPresent(data["windSpeedApparent"]);
+		model.windAngleApparent = setValueIfPresent(data["windAngleApparent"]);
+		model.windSpeedTrue = setValueIfPresent(data["windSpeedTrue"]);
+		model.windAngleTrue = setValueIfPresent(data["windAngleTrue"]);
+		model.tripTotal = setValueIfPresent(data["tripTotal"]);
+		model.depthBelowKeel = setValueIfPresent(data["depthBelowKeel"]);
 
-    function onReceive(data) {
-            try {
-                // FLOAT VALUES
-//                depthBelowTranscuder =
-//                    setValueIfPresent(data["depthBelowTransducer"]);
-//                // trueWindSpeed =
-//                // setValueIfPresent(data["windSpeedTrue"]);
-//                apparentWindSpeed =
-//                    setValueIfPresent(data["windSpeedApparent"]);
-//                waterTemperature = setValueIfPresent(data["waterTemperature"]);
-                model.speedOverGround = setValueIfPresent(data["speedOverGround"]);
-//                courseOverGround =
-//                    setValueIfPresent(data["courseOverGroundTrue"]);
-//                apparentWindAngle =
-//                    setValueIfPresent(data["windAngleApparent"]);
-//                rudderAngle = setValueIfPresent(data["rudderAngle"]);
-//                headingMagnetic = setValueIfPresent(data["headingMagnetic"]);
-//                targetHeadingMagnetic =
-//                    setValueIfPresent(data["autopilotTargetHeadingMagnetic"]);
-//                targetHeadingTrue =
-//                    setValueIfPresent(data["autopilotTargetHeadingTrue"]);
-//                targetHeadingWindAppearant =
-//                    setValueIfPresent(data["autopilotTargetWindAngleApparent"]);
-//                tripTotal = setValueIfPresent(data["tripTotal"]);
-
-                // STRING VALUES
-                if (data["autopilotState"] != null) {
-                    autopilotState = data["autopilotState"];
-                } else {
-                    autopilotState = "---";
-                }
-            } catch (ex) {
-                ex.printStackTrace();
+        // STRING VALUES
+        if (data["autopilotState"] != null) {
+            autopilotState = data["autopilotState"];
+        } else {
+            autopilotState = "---";
+        }
+        
+        WatchUi.requestUpdate();
+        timer = new Timer.Timer();
+        timer.start(method(:getVesselData), updateInterval, false);
+    }
+    
+    function getVesselDataOnError(errorCode) {
                 model.reset();
-            }
-
-            WatchUi.requestUpdate();
-            updateTimer = new Timer.Timer();
-            updateTimer.start(method(
-                                  : updateVesselDataFromServer),
-                              updateInterval, false);
+                WatchUi.requestUpdate();
+                timer = new Timer.Timer();
+            	timer.start(method(:getVesselData), retryInterval, false);
     }
 
     function sendAutopilotCommand(command) {
@@ -156,11 +143,7 @@ class VesselController {
             Attention.playTone(Attention.TONE_KEY);
         } else {
             if (Attention has : vibrate) {
-                var vibeData = [
-                    new Attention.VibeProfile(50,
-                                              100),  // On for 200 ms
-                ];
-                Attention.vibrate(vibeData);
+                Attention.vibrate([ new Attention.VibeProfile(50, 100) ]); // On for 200 ms
             }
         }
         isAutopilotRequestPending = false;
@@ -177,12 +160,5 @@ class VesselController {
     function showNetworkError(responseCode) {
         errorCode = responseCode;
         WatchUi.requestUpdate();
-    }
-
-    function startRetryTimer() {
-        System.println("Receivend Networking error. Retry in " +
-                       retryInterval / 1000 + " seconds");
-        retryTimer = new Timer.Timer();
-        retryTimer.start(method( : startUpdatingData), retryInterval, false);
     }
 }
