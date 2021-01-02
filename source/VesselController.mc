@@ -86,12 +86,7 @@ class VesselController {
         client.updateVesselDataFromServer(method(:onReceive));
     }
 
-    function onReceive(responseCode, data) {
-        if (responseCode == -1003) {
-            return;
-        }
-
-        if (responseCode == 200) {
+    function onReceive(data) {
             try {
                 // FLOAT VALUES
 //                depthBelowTranscuder =
@@ -132,19 +127,6 @@ class VesselController {
             updateTimer.start(method(
                                   : updateVesselDataFromServer),
                               updateInterval, false);
-        } else {
-            System.println("Response Code: " + responseCode);
-            if (responseCode == 401 || responseCode == -400) {
-            	// TODO: move this into client
-                client.loginToSignalKServer();
-            } else {
-                resetVesselData();
-                showNetworkError(responseCode);
-                startRetryTimer();
-            }
-        }
-
-        data = null;
     }
 
     function sendAutopilotCommand(command) {

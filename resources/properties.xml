@@ -1,9 +1,9 @@
 <resources>
 
     <properties>
-        <property id="baseurl_prop" type="string">https://seatalk.defectradar.com</property>
+        <property id="baseurl_prop" type="string">http://localhost:3000</property>
         <property id="username_prop" type="string">garmin</property>
-        <property id="password_prop" type="string">garmin123</property>
+        <property id="password_prop" type="string">garmin</property>
         
     </properties>
 
@@ -26,7 +26,5 @@
         <setting propertyKey="@Properties.password_prop" title="@Strings.password_title">
             <settingConfig type="password" />
         </setting>
-
-        
     </settings>
 </resources>

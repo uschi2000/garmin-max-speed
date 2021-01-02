@@ -53,11 +53,12 @@ class SignalKClient {
         }
     }
 
-    function updateVesselDataFromServer(callback) {
+    function updateVesselDataFromServer(dataCallback) {
     	if (token == null) {
     		loginToSignalKServer();
     	}
 
+		var callback = new Callback(dataCallback);
 		Communications.makeWebRequest(
             baseUrl + "/plugins/minimumvesseldatarest/vesseldata",
             {},
@@ -69,7 +70,7 @@ class SignalKClient {
                 },
              	:responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
             },
-            callback
+            callback.method(:apply)
         );
     }
 
@@ -115,3 +116,24 @@ class SignalKClient {
         WatchUi.requestUpdate();
     }
 }
+
+class Callback {
+  var delegate;
+  
+  function initialize(delegate_) {
+    delegate = delegate_;
+  }
+  
+  function apply(responseCode, data) {
+  	if (responseCode == -1003) {
+        return;
+    } else if (responseCode == 401 || responseCode == -400) {
+        client.loginToSignalKServer();
+    } else if (responseCode == 200) {
+        delegate.invoke(data);
+    } else {
+    	System.println("Unknown error: " + responseCode);
+    }
+  }
+}
+  

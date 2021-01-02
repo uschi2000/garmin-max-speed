@@ -1,4 +1,5 @@
 using Toybox.Application;
+using Toybox.Application.Properties;
 using Toybox.System;
 
 class VesselConnectApp extends Application.AppBase {
@@ -8,11 +9,11 @@ class VesselConnectApp extends Application.AppBase {
   function initialize() {
     AppBase.initialize();
     client = new SignalKClient();
-    onSettingsChanged();
     controller = new VesselController(client);
   }
 
   function onStart(state) {
+    onSettingsChanged();
   	controller.startUpdatingData();
   }
 
@@ -22,9 +23,9 @@ class VesselConnectApp extends Application.AppBase {
 
   function onSettingsChanged() {
     client.configure(
-    	Application.Properties.getValue("baseurl_prop"),
-    	Application.Properties.getValue("username_prop"),
-    	Application.Properties.getValue("password_prop")
+    	Properties.getValue("baseurl_prop"),
+    	Properties.getValue("username_prop"),
+    	Properties.getValue("password_prop")
     );
   }
 
