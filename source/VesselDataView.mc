@@ -5,15 +5,23 @@ using Toybox.Math;
 using Utilities as Utils;
 
 class VesselDataView extends WatchUi.View {
-  var vessel;
+  var vesselController;
 
   var width;
   var height;
   var blockHeight;
 
-  function initialize(controller) {
-    vessel = controller.model;
+  function initialize(controllers_) {
+    vesselController = controllers_.vessel;
     View.initialize();
+  }
+  
+  function onShow() {
+  	vesselController.startUpdatingData();
+  }
+
+  function onHide() {
+  	vesselController.stopUpdatingData();
   }
 
   function onUpdate(dc) {
@@ -32,7 +40,7 @@ class VesselDataView extends WatchUi.View {
   function drawValues(dc) {
     // Grid
     dc.setPenWidth(2);
-    dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.GRID, Graphics.COLOR_WHITE);
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
     dc.drawLine(width / 2, blockHeight, width / 2, blockHeight * 2);
@@ -49,6 +57,7 @@ class VesselDataView extends WatchUi.View {
 
     // Ship data
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+    var vessel = vesselController.model;
     drawDataText(dc, width / 2, 10, "SOG",
                  vessel.getSpeedOverGround());
     drawDataText(dc, width / 2, height - blockHeight, "DBT",
@@ -70,21 +79,20 @@ class VesselDataView extends WatchUi.View {
 }
 
 class VesselDataViewDelegate extends WatchUi.BehaviorDelegate {
-  var controller;
+  var controllers;
 
-  function initialize(controller_) {
-    controller = controller_;
+  function initialize(controllers_) {
+    controllers = controllers_;
     BehaviorDelegate.initialize();
   }
-
-  function onSelect() {
-    WatchUi.pushView(new AutopilotView(controller), new AutopilotDelegate(controller),
-                     WatchUi.SLIDE_RIGHT);
-    return true;
-  }
   
+  function onPreviousPage() {
+  	WatchUi.switchToView(new StatusView(controllers), new StatusViewDelegate(controllers), WatchUi.SLIDE_DOWN);
+  	return true;
+  }
+ 
   function onNextPage() {
-  	WatchUi.switchToView(new StatusView(controller), new StatusViewDelegate(controller), WatchUi.SLIDE_UP);
+  	WatchUi.switchToView(new LineSelectionView(controllers), new LineSelectionViewDelegate(controllers), WatchUi.SLIDE_UP);
   	return true;
   }
 }

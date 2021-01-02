@@ -5,15 +5,15 @@ using Toybox.Math;
 using Utilities as Utils;
 
 class StatusView extends WatchUi.View {
-  var controller;
+  var controllers;
   
   var width;
   var center;
   var height;
   var blockHeight;
 
-  function initialize(controller_) {
-    controller = controller_;
+  function initialize(controllers_) {
+    controllers = controllers_;
     View.initialize();
   }
 
@@ -34,7 +34,7 @@ class StatusView extends WatchUi.View {
   function drawError(dc) {
     // Grid
     dc.setPenWidth(2);
-    dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.GRID, Graphics.COLOR_WHITE);
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
 
@@ -43,9 +43,9 @@ class StatusView extends WatchUi.View {
     dc.drawText(center, blockHeight + 0.3 * blockHeight, Graphics.FONT_XTINY, "Vessel data connection",
     		(Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
     var status;
-	if (controller.error) {
+	if (controllers.vessel.error) {
 		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_WHITE);
-		status = controller.error;
+		status = controllers.vessel.error;
 	} else {
 		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_WHITE);
 		status = "OK";
@@ -56,15 +56,20 @@ class StatusView extends WatchUi.View {
 }
 
 class StatusViewDelegate extends WatchUi.BehaviorDelegate {
-  var controller;
+  var controllers;
 
-  function initialize(controller_) {
-    controller = controller_;
+  function initialize(controllers_) {
+    controllers = controllers_;
     BehaviorDelegate.initialize();
   }
 
+  function onPreviousPage() {
+    WatchUi.switchToView(new LineSelectionView(controllers), new LineSelectionViewDelegate(controllers), WatchUi.SLIDE_DOWN);
+    return true;
+  }
+
   function onNextPage() {
-    WatchUi.switchToView(new VesselDataView(controller), new VesselDataViewDelegate(controller), WatchUi.SLIDE_UP);
+    WatchUi.switchToView(new VesselDataView(controllers), new VesselDataViewDelegate(controllers), WatchUi.SLIDE_UP);
     return true;
   }
 }
