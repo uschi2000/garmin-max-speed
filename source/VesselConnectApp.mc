@@ -1,24 +1,17 @@
 using Toybox.Application;
 using Toybox.Application.Properties;
 using Toybox.System;
+using Toybox.Position;
 
 class VesselConnectApp extends Application.AppBase {
   var client;
-  var controller;
+  var controllers;
 
   function initialize() {
     AppBase.initialize();
     client = new SignalKClient();
-    controller = new VesselController(client);
-  }
-
-  function onStart(state) {
     onSettingsChanged();
-  	controller.startUpdatingData();
-  }
-
-  function onStop(state) {
-  	controller.stopUpdatingData();
+    controllers = new Controllers(new VesselController(client), new LineController()); 
   }
 
   function onSettingsChanged() {
@@ -31,6 +24,6 @@ class VesselConnectApp extends Application.AppBase {
   }
 
   function getInitialView() {
-    return [ new VesselDataView(controller), new VesselDataViewDelegate(controller) ];
+    return [ new VesselDataView(controllers), new VesselDataViewDelegate(controllers) ];
   }
 }
