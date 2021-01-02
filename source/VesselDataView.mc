@@ -26,11 +26,11 @@ class VesselDataView extends WatchUi.View {
     height = dc.getHeight();
     blockHeight = height / 3;
 
-    if (vessel.errorCode == null) {
+//    if (vessel.errorCode == null) {
       drawValues(dc);
-    } else {
-      drawError(dc);
-    }
+//    } else {
+//      drawError(dc);
+//    }
   }
 
   function drawError(dc) {
@@ -41,11 +41,11 @@ class VesselDataView extends WatchUi.View {
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
 
-    if (!vessel.credentialsAvailable || vessel.errorCode == 401) {
-      errorMessage = "INVALID OR\nMISSING CREDENTIALS";
-    } else {
-      // drawDataText(dc,width/2,10,"ERROR",vessel.errorCode);
-    }
+//    if (!vessel.credentialsAvailable || vessel.errorCode == 401) {
+//      errorMessage = "INVALID OR\nMISSING CREDENTIALS";
+//    } else {
+//      // drawDataText(dc,width/2,10,"ERROR",vessel.errorCode);
+//    }
 
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
     dc.drawText(width / 2, height / 2, Graphics.FONT_SYSTEM_TINY, errorMessage,
@@ -73,16 +73,15 @@ class VesselDataView extends WatchUi.View {
     // Ship data
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
     drawDataText(dc, width / 2, 10, "SOG",
-                 vessel.getSpeedOverGroundKnotsString());
+                 vessel.getSpeedOverGround());
     drawDataText(dc, width / 2, height - blockHeight, "DBT",
-                 vessel.getDepthBelowTranscuderMeterString());
+                 vessel.getDepthBelowKeel());
     drawDataText(dc, (width / 4), blockHeight + 5, "AWA",
-                 vessel.getAppearantWindAngleDegreeString());
+                 vessel.getWindAngleApparent());
     drawDataText(dc, (width * 0.75), blockHeight + 5, "AWS",
-                 vessel.getApparentWindSpeedKnotsString());
-
-    Utils.drawWindAngle(dc, vessel.apparentWindAngle, width);
-  }
+                 vessel.getWindSpeedApparent());
+    Utils.drawWindAngle(dc, vessel.windAngleApparent, width);
+ }
 
   function drawDataText(dc, x, y, labelText, valueText) {
     dc.drawText(x, y + 4, Graphics.FONT_SYSTEM_XTINY, labelText,

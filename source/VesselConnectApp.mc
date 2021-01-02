@@ -2,24 +2,33 @@ using Toybox.Application;
 using Toybox.System;
 
 class VesselConnectApp extends Application.AppBase {
-  var vessel;
+  var client;
+  var controller;
 
   function initialize() {
     AppBase.initialize();
-    vessel = new VesselModel();
+    client = new SignalKClient();
+    onSettingsChanged();
+    controller = new VesselController(client);
   }
 
-  function onStart(state) { vessel.startUpdatingData(); }
+  function onStart(state) {
+  	controller.startUpdatingData();
+  }
 
-  function onStop(state) { vessel.stopUpdatingData(); }
+  function onStop(state) {
+  	controller.stopUpdatingData();
+  }
 
   function onSettingsChanged() {
-    vessel.stopUpdatingData();
-    vessel.configureSignalK();
-    vessel.startUpdatingData();
+    client.configure(
+    	Application.Properties.getValue("baseurl_prop"),
+    	Application.Properties.getValue("username_prop"),
+    	Application.Properties.getValue("password_prop")
+    );
   }
 
   function getInitialView() {
-    return [ new VesselDataView(vessel), new VesselDataViewDelegate(vessel) ];
+    return [ new VesselDataView(controller.getModel()), new VesselDataViewDelegate(controller) ];
   }
 }
