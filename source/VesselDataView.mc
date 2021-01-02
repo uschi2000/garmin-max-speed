@@ -73,16 +73,15 @@ class VesselDataView extends WatchUi.View {
     // Ship data
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
     drawDataText(dc, width / 2, 10, "SOG",
-                 vessel.getSpeedOverGroundKnotsString());
-//    drawDataText(dc, width / 2, height - blockHeight, "DBT",
-//                 vessel.getDepthBelowTranscuderMeterString());
-//    drawDataText(dc, (width / 4), blockHeight + 5, "AWA",
-//                 vessel.getAppearantWindAngleDegreeString());
-//    drawDataText(dc, (width * 0.75), blockHeight + 5, "AWS",
-//                 vessel.getApparentWindSpeedKnotsString());
-
-//    Utils.drawWindAngle(dc, vessel.apparentWindAngle, width);
-  }
+                 vessel.getSpeedOverGround());
+    drawDataText(dc, width / 2, height - blockHeight, "DBT",
+                 vessel.getDepthBelowKeel());
+    drawDataText(dc, (width / 4), blockHeight + 5, "AWA",
+                 vessel.getWindAngleApparent());
+    drawDataText(dc, (width * 0.75), blockHeight + 5, "AWS",
+                 vessel.getWindSpeedApparent());
+    Utils.drawWindAngle(dc, vessel.windAngleApparent, width);
+ }
 
   function drawDataText(dc, x, y, labelText, valueText) {
     dc.drawText(x, y + 4, Graphics.FONT_SYSTEM_XTINY, labelText,

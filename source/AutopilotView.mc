@@ -49,28 +49,28 @@ class AutopilotView extends WatchUi.View {
     var labelText = "";
     var stateName = vessel.getNameForActiveState();
 
-    switch (vessel.autopilotState) {
-      case "standby":
-        valueToDraw = vessel.getHeadingMagneticDegreeString();
-        labelText = "HDG";
-
-        break;
-      case "auto":
-        valueToDraw = vessel.getTargetHeadingMagneticDegreeString();
-        labelText = "HDG";
-
-        break;
-      case "wind": {
-        valueToDraw = vessel.getTargetHeadingWindAppearantDegreeString();
-        labelText = "AWA";
-        break;
-      }
-      case "route": {
-        valueToDraw = "---";
-        labelText = "DTW";
-        break;
-      }
-    }
+//    switch (vessel.autopilotState) {
+//      case "standby":
+//        valueToDraw = vessel.getHeadingMagneticDegreeString();
+//        labelText = "HDG";
+//
+//        break;
+//      case "auto":
+//        valueToDraw = vessel.getTargetHeadingMagneticDegreeString();
+//        labelText = "HDG";
+//
+//        break;
+//      case "wind": {
+//        valueToDraw = vessel.getTargetHeadingWindAppearantDegreeString();
+//        labelText = "AWA";
+//        break;
+//      }
+//      case "route": {
+//        valueToDraw = "---";
+//        labelText = "DTW";
+//        break;
+//      }
+//    }
 
     drawDataText(dc, width / 2, 10, labelText, valueToDraw);
     if (vessel.autopilotState.equals("standby")) {
@@ -88,7 +88,7 @@ class AutopilotView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER);
 
     // DRAW RUDDER ANGLE VIEW
-    drawRudderAngle(dc, Utils.radiansToDegrees(vessel.rudderAngle));
+//    drawRudderAngle(dc, Utils.radiansToDegrees(vessel.rudderAngle));
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
     dc.setPenWidth(2);
 
@@ -110,7 +110,7 @@ class AutopilotView extends WatchUi.View {
                 height / 2 + rudderHeight / 2);
 
     dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_WHITE);
-    Utils.drawWindAngle(dc, vessel.apparentWindAngle, width);
+    Utils.drawWindAngle(dc, vessel.windAngleApparent, width);
   }
 
   function drawDataText(dc, x, y, labelText, valueText) {

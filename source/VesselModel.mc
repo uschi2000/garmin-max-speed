@@ -3,132 +3,84 @@ using Toybox.Application;
 using Toybox.Timer;
 using Toybox.Communications;
 using Toybox.Attention;
-
-using Utilities as Utils;
+using Toybox.Math;
 
 class VesselModel {
+	public var speedThroughWater; // meter/second
     public var speedOverGround;  // meter/second
-   public
-    var apparentWindSpeed;  // meter/second
-   public
-    var trueWindSpeed;  // meter/second
-   public
-    var depthBelowTranscuder;  // meter
-   public
-    var tripTotal;  // meter
-   public
-    var apparentWindAngle;  // radians
-   public
+   	public
     var courseOverGround;  // radians
    public
-    var headingMagnetic;  // radians
-   public
-    var rudderAngle;  // radians
-   public
     var waterTemperature;  // kelvin
-
    public
-    var targetHeadingTrue;  // radians
+    var windSpeedApparent;  // meter/second
    public
-    var targetHeadingMagnetic;  // radians
+    var windAngleApparent;  // radians
    public
-    var targetHeadingWindAppearant;  // radians
+    var windSpeedTrue;  // meter/second
+   public
+    var windAngleTrue;  // radians   
+   public
+    var tripTotal;  // meter
+   public var depthBelowKeel; // meter
 
 	function initialize() {
 	 	reset();
 	}
 
 	function reset() {
-		speedOverGround = 0.0;
-		// TODO
+		speedThroughWater = 0;
+	    speedOverGround = 0;
+	   	courseOverGround = 0;
+	    waterTemperature = 0;
+	    windSpeedApparent = 0;
+	    windAngleApparent = 0;
+	    windSpeedTrue = 0;
+	    windAngleTrue = 0;
+	    tripTotal = 0;
+	    depthBelowKeel = 0;
 	}
 
-    function getSpeedOverGroundKnotsString() {
-        return Utils.meterPerSecondToKnots(speedOverGround).format("%.1f");
+	function getSpeedThroughWater() {
+        return Conversions.meterPerSecondToKnots(speedThroughWater).format("%.1f");
     }
 
-    function getApparentWindSpeedKnotsString() {
-        return Utils.meterPerSecondToKnots(apparentWindSpeed).format("%.1f");
+    function getSpeedOverGround() {
+        return Conversions.meterPerSecondToKnots(speedOverGround).format("%.1f");
+    }
+    
+    function getCourseOverGround() {
+        var degrees = Conversions.radiansToDegrees(courseOverGround).abs();
+        return degrees.format("%.0f") + "°";
+    }
+    
+    function getWaterTemperature() {
+        return Conversions.kelvinToCelsius(waterTemperature).format("%.1f") + "°C";
     }
 
-    function getTrueWindSpeedKnotsString() {
-        return Utils.meterPerSecondToKnots(trueWindSpeed).format("%.1f");
+    function getWindSpeedApparent() {
+        return Conversions.meterPerSecondToKnots(windSpeedApparent).format("%.1f");
     }
-
-    function getDepthBelowTranscuderMeterString() {
-        if (depthBelowTranscuder > 500.0d) {
-            return "---";
-        }
-        return depthBelowTranscuder.format("%.1f") + "m";
-    }
-
-    function getTripTotalString() {
-        return Utils.metersToNauticalMiles(tripTotal).format("%.1f") + "nm";
-    }
-
-    function getWaterTemperatureString() {
-        return Utils.kelvinToCelsius(waterTemperature).format("%.1f") + "°C";
-    }
-
-    function getAppearantWindAngleDegreeString() {
-        var degrees = Utils.radiansToDegrees(apparentWindAngle).abs();
+    
+    function getWindAngleApparent() {
+        var degrees = Conversions.radiansToDegrees(windAngleApparent).abs();
         return degrees.format("%.0f") + "°";
     }
 
-    function getCourseOverGroundDegreeString() {
-        var degrees = Utils.radiansToDegrees(courseOverGround).abs();
+    function getWindSpeedTrue() {
+        return Conversions.meterPerSecondToKnots(windSpeedTrue).format("%.1f");
+    }
+    
+    function getWindAngleTrue() {
+        var degrees = Conversions.radiansToDegrees(windAngleTrue).abs();
         return degrees.format("%.0f") + "°";
     }
 
-    function getHeadingMagneticDegreeString() {
-        var degrees = Utils.radiansToDegrees(headingMagnetic).abs();
-        return degrees.format("%.0f") + "°";
+    function getTripTotal() {
+        return Conversions.metersToNauticalMiles(tripTotal).format("%.1f") + "nm";
     }
-
-    function getTargetHeadingTrueDegreeString() {
-        var degrees = Utils.radiansToDegrees(targetHeadingTrue).abs();
-        return degrees.format("%.0f") + "°";
-    }
-
-    function getTargetHeadingMagneticDegreeString() {
-        var degrees = Utils.radiansToDegrees(targetHeadingMagnetic).abs();
-        return degrees.format("%.0f") + "°";
-    }
-
-    function getTargetHeadingWindAppearantDegreeString() {
-        var degrees = Utils.radiansToDegrees(targetHeadingWindAppearant).abs();
-        return degrees.format("%.0f") + "°";
-    }
-
-    function getNameForActiveState() {
-        var stateName = autopilotState.toUpper();
-        if (stateName.equals("ROUTE")) {
-            stateName = "TRACK";
-        }
-        return stateName;
-    }
-
-    function setAutopilotState(state) {
-        var command = {"action" => "setState", "value" => state};
-        sendAutopilotCommand(command);
-    }
-
-    function changeHeading(change) {
-        var command = {"action" => "changeHeading", "value" => change};
-        sendAutopilotCommand(command);
-    }
-
-    function logState() {
-        System.println(
-            "SOG: " + speedOverGround + "\n");
-//            + "\nAWS: " + apparentWindSpeed +
-//            "\nDBT: " + depthBelowTranscuder + "\nAWA: " + apparentWindAngle +
-//            "\nCOG: " + courseOverGround + "\nHDG(m): " + headingMagnetic +
-//            "\nWaterTemp: " + getWaterTemperatureString() +
-//            "\nTripTotal: " + getTripTotalString() + "\nTARGET_HDG_MAG: " +
-//            targetHeadingMagnetic + "\nTARGET_HDG_TRUE: " + targetHeadingTrue +
-//            "\nTARGET_AWA: " + targetHeadingWindAppearant +
-//            "\nRudder: " + rudderAngle + "\nAUTOPILOT: " + autopilotState +
-//            "\n---------------\n");
+    
+    function getDepthBelowKeel() {
+        return depthBelowKeel.format("%.1f") + "m";
     }
 }

@@ -135,7 +135,8 @@ class VesselController {
         } else {
             System.println("Response Code: " + responseCode);
             if (responseCode == 401 || responseCode == -400) {
-                loginToSignalKServer();
+            	// TODO: move this into client
+                client.loginToSignalKServer();
             } else {
                 resetVesselData();
                 showNetworkError(responseCode);

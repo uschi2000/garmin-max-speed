@@ -5,6 +5,7 @@ using Toybox.Communications;
 using Toybox.Attention;
 using Toybox.Application.Storage;
 
+// TODO(rfink): Use https
 class SignalKClient {
     const tokenKey = "signalk-token";
    
@@ -18,13 +19,6 @@ class SignalKClient {
         username = username_;
         password = password_;
         token = Storage.getValue(tokenKey);
-
-        if (baseUrl == null || username == null || password == null) {
-            System.println("Missing credentails");
-//            credentialsAvailable = false;
-        } else {
-//            credentialsAvailable = true;
-        }
     }
 
     function loginToSignalKServer() {
@@ -52,8 +46,6 @@ class SignalKClient {
         if (responseCode == 200) {
             token = "JWT " + data["token"];
             Storage.setValue(tokenKey, token);
-            updateVesselDataFromServer();
-            errorCode = null;
         } else {
             System.println("Login failed: " + responseCode);
             showNetworkError(responseCode);
@@ -62,15 +54,18 @@ class SignalKClient {
     }
 
     function updateVesselDataFromServer(callback) {
-        // TODO(rfink): Use https
-        Communications.makeWebRequest(
+    	if (token == null) {
+    		loginToSignalKServer();
+    	}
+
+		Communications.makeWebRequest(
             baseUrl + "/plugins/minimumvesseldatarest/vesseldata",
             {},
             {
             	:method => Communications.HTTP_REQUEST_METHOD_GET,
               	:headers => {                                         
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED
-                    // "Authorization" => token
+                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_URL_ENCODED,
+                    "Authorization" => token
                 },
              	:responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
             },
