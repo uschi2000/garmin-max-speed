@@ -36,6 +36,14 @@ module GpsMath {
 	}
 	
 	(:test)
+//	(0, 2)          (2, 2)
+//	*------*------*
+//	       |
+//	       |
+//	       ^
+//  	   |
+//         *  (1, 0)
+
 	function intersection_orthogonal(logger) {
 		var intersection = intersection(0, 2, 2, 2, 1, 0, 0, 1);
 		var actualx = intersection[0];
@@ -44,6 +52,13 @@ module GpsMath {
 	}
 	
 	(:test)
+//	(0, 2)          (2, 2)
+//	*------*------*
+//	       |
+//	       |
+//	 ^
+//  /
+//  *  (0, 0)
 	function intersection_45degrees(logger) {
 		var intersection = intersection(0, 2, 2, 2, 0, 0, 1, 1);
 		var actualx = intersection[0];
@@ -52,6 +67,9 @@ module GpsMath {
 	}
 	
 	(:test)
+//	(0, 2)          (2, 2)
+//	*------*^-----*
+//  	(1, 2)
 	function intersection_boat_on_starting_line(logger) {
 		var intersection = intersection(0, 2, 2, 2, 1, 2, 1, 1);
 		var actualx = intersection[0];
@@ -60,14 +78,26 @@ module GpsMath {
 	}
 	
 	(:test)
+//	(0, 2)
+//	*
+//	|
+//	|
+//	^
+//  |
+//  *  (0, 0)
 	function intersection_two_points_the_same(logger) {
-		var intersection = intersection(0, 2, 0, 2, 0, 0, 1, 0);
+		var intersection = intersection(0, 2, 0, 2, 0, 0, 0, 1);
 		var actualx = intersection[0];
 		var actualy = intersection[1];
 		return actualx == 0 && actualy == 2;
 	}
 
 	(:test)
+//	(0, 2)          (2, 2)
+//	*------*------*
+//
+//  * -->
+// (0, 0)
 	function intersection_parallel(logger) {
 		var intersection = intersection(0, 2, 2, 2, 1, 0, 1, 0);
 		return intersection == null;
