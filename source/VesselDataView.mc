@@ -57,7 +57,7 @@ class VesselDataView extends WatchUi.View {
     // Ship data
     dc.setColor(Colors.STD_FONT, Colors.BACKGROUND);
     var vessel = vesselController.model;
-    drawDataText(dc, width / 2, 10, "SOG",
+    drawDataText(dc, width / 2, 10, "SOG 4",
                  vessel.getSpeedOverGround());
     drawDataText(dc, width / 2, height - blockHeight, "DBT",
                  vessel.getDepthBelowKeel());
@@ -91,7 +91,7 @@ class VesselDataViewDelegate extends WatchUi.BehaviorDelegate {
   }
  
   function onNextPage() {
-  	WatchUi.switchToView(new LineSelectionView(controllers), new LineSelectionViewDelegate(controllers), WatchUi.SLIDE_UP);
+  	WatchUi.switchToView(new StartTimerView(controllers), new StartTimerViewDelegate(controllers), WatchUi.SLIDE_UP);
   	return true;
   }
 }
