@@ -24,7 +24,7 @@ module Utilities {
     var pointB = [ xB, yB ];
     var pointC = [ xC, yC ];
 
-    dc.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.APPARENT_WIND, Colors.BACKGROUND);
     dc.fillPolygon([ pointA, pointB, pointC ]);
   }
 

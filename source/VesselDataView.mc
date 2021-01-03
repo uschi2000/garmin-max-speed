@@ -26,8 +26,7 @@ class VesselDataView extends WatchUi.View {
 
   function onUpdate(dc) {
     View.onUpdate(dc);
-
-    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.STD_FONT, Colors.BACKGROUND);
     dc.clear();
 
     width = dc.getWidth();
@@ -40,7 +39,7 @@ class VesselDataView extends WatchUi.View {
   function drawValues(dc) {
     // Grid
     dc.setPenWidth(2);
-    dc.setColor(Colors.GRID, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.GRID, Colors.BACKGROUND);
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
     dc.drawLine(width / 2, blockHeight, width / 2, blockHeight * 2);
@@ -48,15 +47,15 @@ class VesselDataView extends WatchUi.View {
     // Arcs
     var arcLineWidth = 15;
     dc.setPenWidth(arcLineWidth);
-    dc.setColor(Graphics.COLOR_DK_GREEN, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.STARBOARD, Colors.BACKGROUND);
     dc.drawArc(width / 2, height / 2, (width / 2), Graphics.ARC_CLOCKWISE, 90,
                45);
-    dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.PORT, Colors.BACKGROUND);
     dc.drawArc(width / 2, height / 2, (width / 2),
                Graphics.ARC_COUNTER_CLOCKWISE, 90, 135);
 
     // Ship data
-    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.STD_FONT, Colors.BACKGROUND);
     var vessel = vesselController.model;
     drawDataText(dc, width / 2, 10, "SOG",
                  vessel.getSpeedOverGround());

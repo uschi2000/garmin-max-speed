@@ -1,5 +1,4 @@
 using Toybox.WatchUi;
-using Toybox.Graphics;
 using Toybox.Math;
 
 using Utilities as Utils;
@@ -16,7 +15,7 @@ class LineSelectionView extends WatchUi.View {
   function onUpdate(dc) {
     View.onUpdate(dc);
 
-    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+    dc.setColor(Colors.STD_FONT, Colors.BACKGROUND);
     dc.clear();
 
     width = dc.getWidth();
@@ -27,7 +26,7 @@ class LineSelectionView extends WatchUi.View {
 
   function drawValues(dc) {
 	// Caity, draw some points: starting boat, pin, boat
-	dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_BLACK);
+	dc.setColor(Colors.ERROR, Colors.BACKGROUND);
 	dc.fillCircle(50, 100, 75);
   }
 }
