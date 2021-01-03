@@ -6,8 +6,8 @@ using Toybox.Attention;
 
 class LineController {
 
-    var boatPosition;
-    var pinPosition;
+    var boatPosition = null; //type Toybox.Position.Location
+    var pinPosition = null;
 
     function initialize() {}
     
