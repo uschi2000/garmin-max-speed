@@ -48,8 +48,6 @@ class SignalKClient {
             Storage.setValue(tokenKey, token);
         } else {
             System.println("Login failed: " + responseCode);
-//            showNetworkError(responseCode);
-//            startRetryTimer();
         }
     }
 
@@ -72,48 +70,6 @@ class SignalKClient {
             },
             callback.method(:apply)
         );
-    }
-
-    function sendAutopilotCommand(command) {
-        if (isAutopilotRequestPending == true) {
-            return;
-        }
-
-        isAutopilotRequestPending = true;
-        Communications.makeWebRequest(
-            baseUrl + "/plugins/raymarineautopilotfork/command",
-            command,
-            {
-              	:method => Communications.HTTP_REQUEST_METHOD_POST,
-                :headers => {    
-                	"Accept" => "application/json",                                      
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
-                    "Authorization" => token
-                },
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-            },
-            method(:onAutopilotReceive)
-        );
-    }
-
-    function onAutopilotReceive(responseCode, data) {
-        if (responseCode == 200) {
-            Attention.playTone(Attention.TONE_KEY);
-        } else {
-            if (Attention has : vibrate) {
-                var vibeData = [
-                    new Attention.VibeProfile(50,
-                                              100),  // On for 200 ms
-                ];
-                Attention.vibrate(vibeData);
-            }
-        }
-        isAutopilotRequestPending = false;
-    }
-
-    function showNetworkError(responseCode) {
-        errorCode = responseCode;
-        WatchUi.requestUpdate();
     }
 }
 

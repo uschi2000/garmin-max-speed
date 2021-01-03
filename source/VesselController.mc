@@ -6,22 +6,11 @@ using Toybox.Attention;
 
 using Utilities as Utils;
 
-enum {
-    AP_STATE_STANDBY = 0,
-    AP_STATE_AUTO = 1,
-    AP_STATE_WIND = 2,
-    AP_STATE_TRACK = 3,
-    AP_STATE_NOT_SUPPORTED = 4,
-}
-
 class VesselController {
     const updateInterval = 1000;
     const retryInterval = 3000;
     var timer;
     var error = null;
-
-    var autopilotState = "---";
-    var isAutopilotRequestPending = false;
     
     var client;
     var model;
@@ -52,29 +41,6 @@ class VesselController {
         invalidateTimer();
     }
 
-    function resetVesselData() {
-		model.reset();
-        autopilotState = "---";
-    }
-
-    function getNameForActiveState() {
-        var stateName = autopilotState.toUpper();
-        if (stateName.equals("ROUTE")) {
-            stateName = "TRACK";
-        }
-        return stateName;
-    }
-
-    function setAutopilotState(state) {
-        var command = {"action" => "setState", "value" => state};
-        sendAutopilotCommand(command);
-    }
-
-    function changeHeading(change) {
-        var command = {"action" => "changeHeading", "value" => change};
-        sendAutopilotCommand(command);
-    }
-
     function invalidateTimer() {
         if (timer == null) {
             return;
@@ -91,24 +57,17 @@ class VesselController {
     }
     
     function getVesselDataOnSuccess(data) {
-		model.speedThroughWater = setValueIfPresent(data["speedThroughWater"]);
-		model.speedOverGround = setValueIfPresent(data["speedOverGround"]);
-		model.courseOverGround = setValueIfPresent(data["courseOverGroundTrue"]);
-		model.magneticVariation = setValueIfPresent(data["magneticVariation"]);
-		model.waterTemperature = setValueIfPresent(data["waterTemperature"]);
-		model.windSpeedApparent = setValueIfPresent(data["windSpeedApparent"]);
-		model.windAngleApparent = setValueIfPresent(data["windAngleApparent"]);
-		model.windSpeedTrue = setValueIfPresent(data["windSpeedTrue"]);
-		model.windAngleTrue = setValueIfPresent(data["windAngleTrue"]);
-		model.tripTotal = setValueIfPresent(data["tripTotal"]);
-		model.depthBelowKeel = setValueIfPresent(data["depthBelowKeel"]);
-
-        // STRING VALUES
-        if (data["autopilotState"] != null) {
-            autopilotState = data["autopilotState"];
-        } else {
-            autopilotState = "---";
-        }
+		model.speedThroughWater = valueOrZero(data["speedThroughWater"]);
+		model.speedOverGround = valueOrZero(data["speedOverGround"]);
+		model.courseOverGround = valueOrZero(data["courseOverGroundTrue"]);
+		model.magneticVariation = valueOrZero(data["magneticVariation"]);
+		model.waterTemperature = valueOrZero(data["waterTemperature"]);
+		model.windSpeedApparent = valueOrZero(data["windSpeedApparent"]);
+		model.windAngleApparent = valueOrZero(data["windAngleApparent"]);
+		model.windSpeedTrue = valueOrZero(data["windSpeedTrue"]);
+		model.windAngleTrue = valueOrZero(data["windAngleTrue"]);
+		model.tripTotal = valueOrZero(data["tripTotal"]);
+		model.depthBelowKeel = valueOrZero(data["depthBelowKeel"]);
         
         WatchUi.requestUpdate();
         timer = new Timer.Timer();
@@ -124,40 +83,7 @@ class VesselController {
 		error = "Failure: " + errorCode;
     }
 
-    function sendAutopilotCommand(command) {
-        if (isAutopilotRequestPending == true) {
-            return;
-        }
-
-        isAutopilotRequestPending = true;
-        Communications.makeWebRequest(
-            baseUrl + "/plugins/raymarineautopilotfork/command",
-            command,
-            {
-              	:method => Communications.HTTP_REQUEST_METHOD_POST,
-                :headers => {    
-                	"Accept" => "application/json",                                      
-                    "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
-                    "Authorization" => token
-                },
-                :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
-            },
-            method(:onAutopilotReceive)
-        );
-    }
-
-    function onAutopilotReceive(responseCode, data) {
-        if (responseCode == 200) {
-            Attention.playTone(Attention.TONE_KEY);
-        } else {
-            if (Attention has : vibrate) {
-                Attention.vibrate([ new Attention.VibeProfile(50, 100) ]); // On for 200 ms
-            }
-        }
-        isAutopilotRequestPending = false;
-    }
-    
-    function setValueIfPresent(value) {
+    function valueOrZero(value) {
         if (value != null) {
             return value;
         } else {

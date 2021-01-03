@@ -3,7 +3,7 @@ class Controllers {
   var line;
   
   function initialize(vessel_, line_) {
-  	vessel = vessel_;
-  	line = line_;
+  	vessel = vessel_; // VesselController
+  	line = line_; // LineController
    }
 }
