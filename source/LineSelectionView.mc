@@ -34,19 +34,10 @@ class LineSelectionView extends WatchUi.View {
 
 class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
   var controllers;
-  var currentX;
-  var currentY;
 
   function initialize(controllers_) {
     controllers = controllers_;
     BehaviorDelegate.initialize();
-    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
-  }
-  
-  function onPosition(info) {
-    var loc = info.position.toDegrees();
-    currentX = loc[0];
-    currentY = loc[1];
   }
   
   function onMenu() {
@@ -61,9 +52,9 @@ class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
   
   function menuCallback(item) {
   	if (item == :one) {
-        controllers.line.setBoatPosition(currentX, currentY);
+        controllers.line.setBoatPosition(controllers.vessel.getModel().position);
     } else if (item == :two) {
-        controllers.line.setPinPosition(currentX, currentY);
+        controllers.line.setPinPosition(controllers.vessel.getModel().position);
     }
     WatchUi.requestUpdate();
   }

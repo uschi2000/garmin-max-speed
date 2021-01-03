@@ -4,32 +4,35 @@ using Toybox.Timer;
 using Toybox.Communications;
 using Toybox.Attention;
 using Toybox.Math;
+using Toybox.Position;
 
 class VesselModel {
-	public var speedThroughWater; // meter/second
-    public var speedOverGround;  // meter/second
-   	public
+	// Note: use getters to access these variables with
+	// consistent units and formatting.
+	var position; // Toybox.Position.Location
+	var speedThroughWater; // meter/second
+    var speedOverGround;  // meter/second
     var courseOverGround;  // radians
-    public var magneticVariation; // radians
-   public
+    var magneticVariation; // radians
     var waterTemperature;  // kelvin
-   public
     var windSpeedApparent;  // meter/second
-   public
     var windAngleApparent;  // radians
-   public
     var windSpeedTrue;  // meter/second
-   public
     var windAngleTrue;  // radians   
-   public
     var tripTotal;  // meter
-   public var depthBelowKeel; // meter
+    var depthBelowKeel; // meter
 
 	function initialize() {
 	 	reset();
 	}
 
 	function reset() {
+		position = new Position.Location(
+		    {
+		        :latitude => 0,
+		        :longitude => 0,
+		        :format => :degrees
+		    });
 		speedThroughWater = 0;
 	    speedOverGround = 0;
 	   	courseOverGround = 0;
@@ -41,6 +44,10 @@ class VesselModel {
 	    windAngleTrue = 0;
 	    tripTotal = 0;
 	    depthBelowKeel = 0;
+	}
+	
+	function getPosition() {
+		return position.toGeoString(Position.GEO_DMS);
 	}
 
 	function getSpeedThroughWater() {

@@ -29,7 +29,12 @@ class VesselController {
     function initialize(client_) {
     	client = client_;
     	model = new VesselModel();
+    	Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
     }
+    
+    function onPosition(info) {
+	    model.position = info.position;
+	}
     
     function getModel() {
     	return model;
@@ -116,7 +121,7 @@ class VesselController {
 		WatchUi.requestUpdate();
 		timer = new Timer.Timer();
 		timer.start(method(:getVesselData), retryInterval, false);
-		error = "Failed to update vessel data: " + errorCode;
+		error = "Failure: " + errorCode;
     }
 
     function sendAutopilotCommand(command) {

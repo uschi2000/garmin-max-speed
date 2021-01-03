@@ -26,7 +26,7 @@ class StatusView extends WatchUi.View {
     width = dc.getWidth();
     center = width / 2;
     height = dc.getHeight();
-    blockHeight = height / 3;
+    blockHeight = height / 4;
     
     drawError(dc);
   }
@@ -37,10 +37,11 @@ class StatusView extends WatchUi.View {
     dc.setColor(Colors.GRID, Graphics.COLOR_WHITE);
     dc.drawLine(0, blockHeight, width, blockHeight);
     dc.drawLine(0, blockHeight * 2, width, blockHeight * 2);
+    dc.drawLine(0, blockHeight * 3, width, blockHeight * 3);
 
 	// Vessel data connection
     dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
-    dc.drawText(center, blockHeight + 0.3 * blockHeight, Graphics.FONT_XTINY, "Vessel data connection",
+    dc.drawText(center, 0.4 * blockHeight, Graphics.FONT_XTINY, "Vessel data connection",
     		(Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
     var status;
 	if (controllers.vessel.error) {
@@ -50,8 +51,17 @@ class StatusView extends WatchUi.View {
 		dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_WHITE);
 		status = "OK";
 	}
-    dc.drawText(center, blockHeight + 0.6 * blockHeight, Graphics.FONT_XTINY, status,
+    dc.drawText(center, 0.7 * blockHeight, Graphics.FONT_XTINY, status,
                 (Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
+                
+                    
+    // Vessel position
+    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_WHITE);
+    dc.drawText(center, 1.3 * blockHeight, Graphics.FONT_XTINY, "Vessel position",
+    		(Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
+	dc.drawText(center, 1.6 * blockHeight, Graphics.FONT_XTINY, controllers.vessel.getModel().getPosition(),
+        (Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER));
+                
   }
 }
 
