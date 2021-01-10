@@ -44,7 +44,7 @@ class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
     menu.setTitle("Line");
     menu.addItem("Mark boat", :one);
     menu.addItem("Mark pin", :two);
-    var delegate = new MenuDelegate(method(:menuCallback));
+    var delegate = new LineSelectionMenuDelegate(method(:menuCallback));
     WatchUi.pushView(menu, delegate, WatchUi.SLIDE_IMMEDIATE);
     return true;
   }
@@ -59,7 +59,7 @@ class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
   }
   
   function onPreviousPage() {
-  	WatchUi.switchToView(new VesselDataView(controllers), new VesselDataViewDelegate(controllers), WatchUi.SLIDE_DOWN);
+  	WatchUi.switchToView(new StartTimerView(controllers), new StartTimerViewDelegate(controllers), WatchUi.SLIDE_DOWN);
   	return true;
   }
  
@@ -69,7 +69,7 @@ class LineSelectionViewDelegate extends WatchUi.BehaviorDelegate {
   }
 }
 
-class MenuDelegate extends WatchUi.MenuInputDelegate {
+class LineSelectionMenuDelegate extends WatchUi.MenuInputDelegate {
 	var callback;
 
     function initialize(callback_) {

@@ -5,7 +5,6 @@ using Toybox.Communications;
 using Toybox.Attention;
 using Toybox.Application.Storage;
 
-// TODO(rfink): Use https
 class SignalKClient {
     const tokenKey = "signalk-token";
    
@@ -56,7 +55,7 @@ class SignalKClient {
     		login();
     	}
 
-		var callback = new GetVesselDataCallback(onSuccess, onError);
+		var callback = new GetVesselDataCallback(onSuccess, onError, method(:login));
 		Communications.makeWebRequest(
             baseUrl + "/plugins/minimumvesseldatarest/vesseldata",
             {},
@@ -76,19 +75,21 @@ class SignalKClient {
 class GetVesselDataCallback {
   var onSuccess;
   var onError;
+  var onAuthFailed;
   
-  function initialize(onSuccess_, onError_) {
+  function initialize(onSuccess_, onError_, onAuthFailed_) {
     onSuccess = onSuccess_;
     onError = onError_;
+    onAuthFailed = onAuthFailed_;
   }
   
   function apply(responseCode, data) {
   	if (responseCode == 200) {
         onSuccess.invoke(data);
     } else if (responseCode == 401 || responseCode == -400) {
-    	System.println("Not authorized, resetting token");
+    	System.println("Not authorized, trying to login again");
     	onError.invoke(responseCode);
-        token = null; 
+        onAuthFailed.invoke(); 
     } else {
     	System.println("Unknown networking error: " + responseCode);
     	onError.invoke(responseCode);

@@ -80,7 +80,7 @@ class VesselController {
 		WatchUi.requestUpdate();
 		timer = new Timer.Timer();
 		timer.start(method(:getVesselData), retryInterval, false);
-		error = "Failure: " + errorCode;
+		error = "Failure: " + client.baseUrl + errorCode;
     }
 
     function valueOrZero(value) {

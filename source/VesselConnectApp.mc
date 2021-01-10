@@ -11,7 +11,10 @@ class VesselConnectApp extends Application.AppBase {
     AppBase.initialize();
     client = new SignalKClient();
     onSettingsChanged();
-    controllers = new Controllers(new VesselController(client), new LineController()); 
+    controllers = new Controllers(
+    	new VesselController(client),
+    	new LineController(),
+    	new StartTimerController()); 
   }
 
   function onSettingsChanged() {
